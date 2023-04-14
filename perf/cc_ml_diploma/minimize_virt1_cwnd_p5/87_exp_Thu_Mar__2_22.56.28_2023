@@ -1,0 +1,6 @@
+[{'bytes sent: ': 5806278, 'mean cwnd: ': 106250.0, 'mean jitter: ': 0.245152, 'mean loss2: ': 0.0066,
+    'mean loss: ': 0.684852, 'mean s_rtt: ': 16.893352, time: 0.0-1.0}, {'bytes sent: ': 4353600,
+    'mean cwnd: ': 106250.0, 'mean jitter: ': 0.20935, 'mean loss2: ': 0.004054, 'mean loss: ': 0.423988,
+    'mean s_rtt: ': 16.660569, time: 1.0-2.0}, {'bytes sent: ': 5079939.0, 'mean cwnd: ': 106250.0,
+    'mean jitter: ': 0.227251, 'mean loss2: ': 0.005327, 'mean loss: ': 0.423988,
+    'mean s_rtt: ': 16.776961, time: global}]

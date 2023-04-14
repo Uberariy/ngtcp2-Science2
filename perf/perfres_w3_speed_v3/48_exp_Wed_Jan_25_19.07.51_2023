@@ -1,0 +1,6 @@
+{additional_info: {channel_bw: 180, channel_congestion_control: bbrfrcst, channel_jitt: 1,
+    channel_loss: 0.001, channel_rtt: 20, cong_window: 4650000}, content: [{'bytes sent: ': 29835051,
+      'mean cwnd: ': 4650000.0, 'mean jitter: ': 0.247328, 'mean loss2: ': 0.930852,
+      'mean loss: ': 32.629989, 'mean s_rtt: ': 50.876406, time: 0.0-1.0}, {'bytes sent: ': 29835051,
+      'mean cwnd: ': 4650000.0, 'mean jitter: ': 0.247328, 'mean loss2: ': 0.930852,
+      'mean loss: ': 32.629989, 'mean s_rtt: ': 50.876406, time: global}]}

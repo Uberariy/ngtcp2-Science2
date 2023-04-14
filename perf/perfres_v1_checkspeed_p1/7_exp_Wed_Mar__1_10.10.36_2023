@@ -1,0 +1,4 @@
+[{'bytes sent: ': 279279, 'mean cwnd: ': 1250000.0, 'mean jitter: ': 13.333333, 'mean loss2: ': 0.0,
+    'mean loss: ': 0.0, 'mean s_rtt: ': 34.333333, time: 0.0-1.0}, {'bytes sent: ': 279279,
+    'mean cwnd: ': 1250000.0, 'mean jitter: ': 13.333333, 'mean loss2: ': 0.0, 'mean loss: ': 0.0,
+    'mean s_rtt: ': 34.333333, time: global}]

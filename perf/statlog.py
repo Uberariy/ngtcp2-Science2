@@ -30,54 +30,49 @@ def parse_stat(path, parti, args):
         if elems[0][0] == "!":
             "The statistical element has a structure of: '!{name}:{digit}'."
             firstelem = elems[0].split(":")
+            parti_high_prev = parti_high - parti
             if firstelem[0] == "!TSMP_I":
                 lastts = int(firstelem[1])
                 if lastts > parti_high:
                     for elemtype in dividends:
                         if getattr(args, elemtype):
                             if numbers[elemtype] != 0:
-                                dicts[elemtype][parti_high - parti] = round(dicts[elemtype][parti_high - parti] / numbers[elemtype], 6)
-                            else:
-                                pass
-                                # dicts[elemtype][parti_high - parti] = 0
+                                dicts[elemtype][parti_high_prev] = round(dicts[elemtype][parti_high_prev] / numbers[elemtype], 6)
                             numbers[elemtype] = 0
                     if args.loss2:
-                        if loss2_dict_delv[parti_high - parti] != 0:
-                            loss2_dict_lost[parti_high - parti] = round(loss2_dict_lost[parti_high - parti] / loss2_dict_delv[parti_high - parti], 6)
-                        else:
-                            pass
-                            # loss2_dict_lost[parti_high - parti] = 0
+                        if loss2_dict_delv[parti_high_prev] != 0:
+                            loss2_dict_lost[parti_high_prev] = round(loss2_dict_lost[parti_high_prev] / loss2_dict_delv[parti_high_prev], 6)
                     parti_high += parti
             elif firstelem[0] == "!SentBytes" and args.direction.upper() == "SENT":
                 if args.mode.upper() == "BYTE":
-                    data_dict[parti_high - parti] += int(firstelem[1])
+                    data_dict[parti_high_prev] += int(firstelem[1])
                 elif args.mode.upper() == "PCKT":
-                    data_dict[parti_high - parti] += 1
+                    data_dict[parti_high_prev] += 1
                 else:
                     sys.exit("statlog.py:\nNo such mode")
             elif firstelem[0] == "!ReceivedBytes" and args.direction.upper() == "RCVD":
                 if args.mode.upper() == "BYTE":
-                    data_dict[parti_high - parti] += int(firstelem[1])
+                    data_dict[parti_high_prev] += int(firstelem[1])
                 elif args.mode.upper() == "PCKT":
-                    data_dict[parti_high - parti] += 1
+                    data_dict[parti_high_prev] += 1
                 else:
                     sys.exit("statlog.py:\nNo such mode")
             elif firstelem[0] == "!CcCwnd" and args.cwnd:
-                dicts['cwnd'][parti_high - parti] += int(firstelem[1])
+                dicts['cwnd'][parti_high_prev] += int(firstelem[1])
                 numbers['cwnd'] += 1
             elif firstelem[0] == "!latest_rtt":
                 instrct = ['lrtt', 'mrtt', 'srtt', 'jitt']
                 for idx, elemtype in enumerate(instrct):
                     if getattr(args, elemtype):
-                        dicts[elemtype][parti_high - parti] += int(elems[idx].split(":")[1])
+                        dicts[elemtype][parti_high_prev] += int(elems[idx].split(":")[1])
                         numbers[elemtype] += 1
             elif firstelem[0] == "!loss2" and args.loss:
-                dicts['loss'][parti_high - parti] += float(firstelem[1])
+                dicts['loss'][parti_high_prev] += float(firstelem[1])
                 numbers['loss'] += 1
             elif firstelem[0] == "!rs->lost" and args.loss2:
                 '''Inspired by https://www.sciencedirect.com/topics/computer-science/packet-loss-rate'''
-                loss2_dict_lost[parti_high - parti] += float(firstelem[1])
-                loss2_dict_delv[parti_high - parti] += float(elems[2].split(":")[1])
+                loss2_dict_lost[parti_high_prev] += float(firstelem[1])
+                loss2_dict_delv[parti_high_prev] += float(elems[2].split(":")[1])
             else:
                 '''Wrong statistical elem starting with "!" found!'''
                 pass
@@ -85,17 +80,11 @@ def parse_stat(path, parti, args):
         for elemtype in dividends:
             if getattr(args, elemtype):
                 if numbers[elemtype] != 0:
-                    dicts[elemtype][parti_high - parti] = round(dicts[elemtype][parti_high - parti] / numbers[elemtype], 6)
-                else:
-                    pass
-                    # dicts[elemtype][parti_high - parti] = 0
+                    dicts[elemtype][parti_high_prev] = round(dicts[elemtype][parti_high_prev] / numbers[elemtype], 6)
                 numbers[elemtype] = 0
         if args.loss2:
-            if loss2_dict_delv[parti_high - parti] != 0:
-                loss2_dict_lost[parti_high - parti] = round(loss2_dict_lost[parti_high - parti] / loss2_dict_delv[parti_high - parti], 6)
-            else:
-                pass
-                # loss2_dict_lost[parti_high - parti] = 0
+            if loss2_dict_delv[parti_high_prev] != 0:
+                loss2_dict_lost[parti_high_prev] = round(loss2_dict_lost[parti_high_prev] / loss2_dict_delv[parti_high_prev], 6)
     return [data_dict, dicts['srtt'], dicts['lrtt'], dicts['mrtt'], dicts['jitt'], dicts['loss'], loss2_dict_lost, dicts['cwnd']]
 
 

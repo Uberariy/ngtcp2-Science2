@@ -1,0 +1,53 @@
+Topo:
+    linkParams:   
+    -   type        : INTERNET  # here! MPLS or INTERNET
+        cost        : 0 # not used
+        bw_max      : 16
+        bw_mean     : 16
+        loss        : 0.01
+        rtt_min     : 10ms # not used
+        rtt_mean    : 200ms
+        rtt_max     : 30ms # not used
+        jitter_max  : 1ms
+        jitter_mean : 1ms # not used
+        jitter_distr: normal # not used
+
+
+sdwanGen:
+    flow0:
+        class     : voice
+        SLA:
+            bw    : 20      # Mbit/s
+            delay : 15ms    
+            loss  : 0.2     # percentage
+        rate      : 15      # Mbit/s
+        time_start: 0.5     # seconds after generataion starts
+        time_stop : 6.75    # seconds after generataion starts
+
+    flow1:
+        class     : text
+        SLA:
+            bw    : 5
+            delay : 100ms
+            loss  : 3
+        rate      : 3
+        time_start: 5.0
+        time_stop : 7.5
+
+
+backgroundGen:
+-   link      : 0           # from 0 to len(Topo.linkParams) - 1
+    rate      : 5           # Mbit/s
+    time_start: 0.0         # seconds after generataion starts
+    time_stop : 5.0         # seconds after generataion starts
+
+-   link      : 0
+    rate      : 2
+    time_start: 4.0
+    time_stop : 6.0
+
+-   link      : 1
+    rate      : 4
+    time_start: 0.0
+    time_stop : 8.0 
+

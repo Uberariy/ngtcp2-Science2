@@ -1,0 +1,42 @@
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 200 bw givens to frcst in megabits: 200
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6596        mean s_rtt: 8           mean max_bw: 110501     mean loss: 0            states: Forecast,       
+Mean speed 6596 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 200 bw givens to frcst in megabits: 200
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6596        mean s_rtt: 7           mean max_bw: 123236     mean loss: 0            states: Forecast,       
+Mean speed 6596 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 240 bw givens to frcst in megabits: 240
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6517        mean s_rtt: 8           mean max_bw: 112159     mean loss: 0            states: Forecast,       
+Mean speed 6517 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 240 bw givens to frcst in megabits: 240
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6516        mean s_rtt: 7           mean max_bw: 127020     mean loss: 0            states: Forecast,       
+Mean speed 6516 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 280 bw givens to frcst in megabits: 280
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6643        mean s_rtt: 7           mean max_bw: 189795     mean loss: 0            states: Forecast,       
+Mean speed 6643 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 280 bw givens to frcst in megabits: 280
+Estimating speed in BYTE mode:
+Second 0.0-2.5:     bytes sent: 6677        mean s_rtt: 6           mean max_bw: 136253     mean loss: 0            states: Forecast,       
+Mean speed 6677 bytes per 2.5 seconds
+If it is bbrfrcst: SLA IS OKAY
+
+BBRFRCSTexperiment. p_rtt: 5 p_loss: 1.0 p_bw: 320 bw givens to frcst in megabits: 320
+
+BBRFRCSTexperiment. p_rtt: 10 p_loss: 1.0 p_bw: 200 bw givens to frcst in megabits: 200
+
+BBRFRCSTexperiment. p_rtt: 10 p_loss: 1.0 p_bw: 240 bw givens to frcst in megabits: 240

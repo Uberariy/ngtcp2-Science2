@@ -1,0 +1,10 @@
+{additional_info: {channel_bw: 180, channel_congestion_control: bbrfrcst, channel_jitt: 1,
+    channel_loss: 0.001, channel_rtt: 20, cong_window: 3700000}, content: [{'bytes sent: ': 35560255,
+      'mean cwnd: ': 3700000.0, 'mean jitter: ': 0.359735, 'mean loss2: ': 0.717898,
+      'mean loss: ': 32.756334, 'mean s_rtt: ': 48.342699, time: 0.0-1.0}, {'bytes sent: ': 40385437,
+      'mean cwnd: ': 3700000.0, 'mean jitter: ': 0.367289, 'mean loss2: ': 0.74836,
+      'mean loss: ': 36.720218, 'mean s_rtt: ': 51.558803, time: 1.0-2.0}, {'bytes sent: ': 40897325,
+      'mean cwnd: ': 3700000.0, 'mean jitter: ': 0.240624, 'mean loss2: ': 0.945018,
+      'mean loss: ': 40.448529, 'mean s_rtt: ': 55.710271, time: 2.0-3.0}, {'bytes sent: ': 38947672.333333,
+      'mean cwnd: ': 3700000.0, 'mean jitter: ': 0.322549, 'mean loss2: ': 0.803759,
+      'mean loss: ': 38.584373, 'mean s_rtt: ': 51.870591, time: global}]}

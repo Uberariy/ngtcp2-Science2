@@ -1,0 +1,86 @@
+[
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.05155452235851783,
+            "max_depth": 6,
+            "n_estimators": 183,
+            "num_leaves": 3,
+            "training_duration": 0.07021737098693848,
+            "test_NSMSE": -69634.67395559407,
+            "test_NMAE": -49837.80667777144,
+            "test_R2": 0.9850542397009733,
+            "test_NEP": -7.650606654245303
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.004926797177973474,
+            "max_depth": 5,
+            "n_estimators": 533,
+            "num_leaves": 5,
+            "training_duration": 1.8380334377288818,
+            "test_NSMSE": -122913.60904551437,
+            "test_NMAE": -91224.53325809477,
+            "test_R2": 0.95338992623203,
+            "test_NEP": -20.59725897006024
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.05155452235851783,
+            "max_depth": 3,
+            "n_estimators": 33,
+            "num_leaves": 6,
+            "training_duration": 0.03848886489868164,
+            "test_NSMSE": -176457.62238673246,
+            "test_NMAE": -135850.70361853665,
+            "test_R2": 0.9040967167423541,
+            "test_NEP": -30.41423754729906
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.0058136122378722056,
+            "max_depth": 7,
+            "n_estimators": 345,
+            "num_leaves": 4,
+            "training_duration": 0.10462045669555664,
+            "test_NSMSE": -179159.77975483972,
+            "test_NMAE": -136872.6730259284,
+            "test_R2": 0.9011603593006496,
+            "test_NEP": -31.403520652866394
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.0005490498802018011,
+            "max_depth": 9,
+            "n_estimators": 1739,
+            "num_leaves": 3,
+            "training_duration": 0.5099098682403564,
+            "test_NSMSE": -337292.8475438104,
+            "test_NMAE": -274581.00620063447,
+            "test_R2": 0.6501047507159468,
+            "test_NEP": -64.00909740912013
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.004926797177973474,
+            "max_depth": 13,
+            "n_estimators": 241,
+            "num_leaves": 2,
+            "training_duration": 0.05166912078857422,
+            "test_NSMSE": -392838.7269684245,
+            "test_NMAE": -324686.7588678928,
+            "test_R2": 0.5256056598579493,
+            "test_NEP": -66.26226260798896
+      },
+      {
+            "library": "LightGBM",
+            "learning_rate": 0.00037499804105533023,
+            "max_depth": 3,
+            "n_estimators": 1148,
+            "num_leaves": 3,
+            "training_duration": 0.24504590034484863,
+            "test_NSMSE": -438246.2809340345,
+            "test_NMAE": -364916.105950456,
+            "test_R2": 0.40943050165418715,
+            "test_NEP": -82.87578609202195
+      }
+]

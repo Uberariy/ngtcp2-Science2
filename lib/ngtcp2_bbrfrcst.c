@@ -525,8 +525,8 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     ngtcp2_tstamp ts) {
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
     if ((bbr->ultra_loss > cstat->frcst_loss) ||
-       (abs(cstat->frcst_bw - bbr->ultra_bw) > (cstat->frcst_bw * 0.15)) ||
-       (abs(cstat->frcst_rtt - cstat->ultra_rtt) > (cstat->frcst_rtt * 0.15))) {
+        (bbr->ultra_bw < cstat->frcst_bw * (1 + 0.15)) ||
+        (cstat->ultra_rtt > cstat->frcst_rtt * (1 + 0.15))) {
       // One of parameter's gone wild
       if ((ts > bbr->forecast_good_stamp + NGTCP2_BBRFRCST_FAILURE_INTERVAL) &&
          (ts > bbr->probe_rtt_min_stamp + NGTCP2_BBR_PROBE_RTT_INTERVAL)) {
@@ -1155,8 +1155,8 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBR2_STATE_PROBE_RTT &&
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
       (bbr->ultra_loss <= cstat->frcst_loss) &&
-      (abs(cstat->frcst_bw - bbr->ultra_bw) <= (cstat->frcst_bw * 0.15)) &&
-      (abs(cstat->frcst_rtt - cstat->ultra_rtt) <= (cstat->frcst_rtt * 0.15))) {
+      (bbr->ultra_bw >= cstat->frcst_bw * (1 + 0.15)) &&
+      (cstat->ultra_rtt <= cstat->frcst_rtt * (1 + 0.15))) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);
 

@@ -20,6 +20,7 @@ def parse_stat(path, parti, args):
     loss2_dict_lost = defaultdict(float)
     loss2_dict_delv = defaultdict(float)
     dicts = dict(defaultdict(int))
+    states_dict = dict()
     dividends = ['cwnd', 'srtt', 'mrtt', 'lrtt', 'jitt', 'loss']
     numbers = defaultdict(int)
     firstelem = ''
@@ -42,6 +43,9 @@ def parse_stat(path, parti, args):
                     if args.loss2:
                         if loss2_dict_delv[parti_high_prev] != 0:
                             loss2_dict_lost[parti_high_prev] = round(loss2_dict_lost[parti_high_prev] / loss2_dict_delv[parti_high_prev], 6)
+                    if args.states:
+                        if parti_high_prev not in states_dict.keys():
+                            states_dict[parti_high_prev] = states_dict[parti_high_prev - parti]
                     parti_high += parti
             elif firstelem[0] == "!SentBytes" and args.direction.upper() == "SENT":
                 if args.mode.upper() == "BYTE":
@@ -73,6 +77,8 @@ def parse_stat(path, parti, args):
                 '''Inspired by https://www.sciencedirect.com/topics/computer-science/packet-loss-rate'''
                 loss2_dict_lost[parti_high_prev] += float(firstelem[1])
                 loss2_dict_delv[parti_high_prev] += float(elems[2].split(":")[1])
+            elif firstelem[0] == "!CCState" and args.states:
+                states_dict[parti_high_prev] = firstelem[1].split("_")[-1]
             else:
                 '''Wrong statistical elem starting with "!" found!'''
                 pass
@@ -85,7 +91,10 @@ def parse_stat(path, parti, args):
         if args.loss2:
             if loss2_dict_delv[parti_high_prev] != 0:
                 loss2_dict_lost[parti_high_prev] = round(loss2_dict_lost[parti_high_prev] / loss2_dict_delv[parti_high_prev], 6)
-    return [data_dict, dicts['srtt'], dicts['lrtt'], dicts['mrtt'], dicts['jitt'], dicts['loss'], loss2_dict_lost, dicts['cwnd']]
+        if args.states:
+            if parti_high_prev not in states_dict.keys():
+                states_dict[parti_high_prev] = states_dict[parti_high_prev - parti]
+    return [data_dict, dicts['srtt'], dicts['lrtt'], dicts['mrtt'], dicts['jitt'], dicts['loss'], loss2_dict_lost, dicts['cwnd'], states_dict]
 
 
 def indented(val: str, indent: int = 16):
@@ -119,6 +128,8 @@ arg_parser.add_argument('--loss', action='store_true',
                         help='Use this parameter if you want mean loss percent to be calculated. ')
 arg_parser.add_argument('--loss2', action='store_true', 
                         help='Experimental version of loss percent calculation. ')
+arg_parser.add_argument('--states', action='store_true', 
+                        help='Use this parameter if you want to see in which state the CC was in the end of the time period. ')
 arg_parser.add_argument('--json', dest='json', type=str, default='', 
                         help='Save all the data in json format file with file path inserted (--json=PATH)')
 arg_parser.add_argument('--yaml', dest='yaml', type=str, default='', 
@@ -154,7 +165,8 @@ if __name__ == '__main__':
                ['mean jitter: ', 'jitt'],
                ['mean loss: ', 'loss'],
                ['mean loss2: ', 'loss2'],
-               ['mean cwnd: ', 'cwnd']]
+               ['mean cwnd: ', 'cwnd'],
+               ['state: ', 'states']]
     if args.mode.upper() == "PCKT":
         instrct[0][0] = "pckts sent: "
     for idx, elem in enumerate(instrct):
@@ -185,7 +197,13 @@ if __name__ == '__main__':
         print(f"General mean values by each {parti/1000} second:")
         print(" "*20, end="")
         for ind, d in enumerate(ld):
-            if len(d.values()) != 1 and whatis[ind].startswith("mean speed"):
+            if whatis[ind].startswith("state"):
+                mean = "OnlyFORECAST"
+                for state in d.values():
+                    if state != "Forecast":
+                        mean = "ExitsFORECAST"
+                        break
+            elif len(d.values()) != 1 and whatis[ind].startswith("mean speed"):
                 '''We count mean speed ignoring last sample, because we are not sure if last period of time completed'''
                 mean = round(sum([*d.values()][:-1])/len([*d.values()][:-1]), 6)
             elif len(d.values()) != 1 and whatis[ind] == "mean loss: ":

@@ -22,7 +22,7 @@ def load_and_predict(path_to_models, rtt, loss, bw):
     loss - %,
     bw - Kbit/s
     '''
-    model = pickle.load(open(path_to_models / "poly_reg_lasso_degree_deg7.txt", 'rb'))
+    model = pickle.load(open(Path(path_to_models) / "poly_reg_lasso_degree_deg7.txt", 'rb'))
     degree = 7
 
     col = ["Channel RTT (ms)", "Channel Loss (%)", "Channel BW (Kbit/s)"]
@@ -30,7 +30,7 @@ def load_and_predict(path_to_models, rtt, loss, bw):
 
     y_pred = model.predict(X)
 
-    print(X, y_pred)
+    # print(X, y_pred)
 
     return y_pred[0] * 0.9985
 
@@ -47,9 +47,6 @@ arg_parser.add_argument('bw', metavar='BW', type=int,
                         help='Bw (Kbit/s) for dataset. ')
 
 if __name__ == "__main__":
-    '''Change config if needed: '''
-    path_to_models = Path("models/")
-
     args = arg_parser.parse_args()
     result_vector = load_and_predict(args.path_models, args.rtt, args.loss, args.bw)
 

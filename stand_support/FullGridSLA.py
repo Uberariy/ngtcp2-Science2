@@ -24,8 +24,8 @@ if __name__ == "__main__":
     path_to_experiment = Path("experimentData.yml")
     path_to_change = Path("ChangeExperiment.py")
     path_to_mininet_run = Path("main.py")
-    path_to_agent = Path("../ngtcp2-Science2/")
-    path_to_statlog_folder_in_agent = Path("perf/sla_p1/")
+    path_to_agent = Path("../ngtcp2-Science/")
+    path_to_statlog_folder_in_agent = Path("perf/sla_p3/")
 
     '''Ensure, that folder to save experiments exists'''
     if not os.path.exists(path_to_agent / path_to_statlog_folder_in_agent):
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     
     expC = launches_per_parameter_set * len(selection_bws) * len(selection_jitts) * len(selection_losses) * len(selection_rtts) # Manual calculation of experiment upper bound
     timeConstraint = 40 # If something goes wrong during experiment
-    minimal_experiment_length = 20
+    minimal_experiment_length = 30
 
     expN = 0
     cur_jitt = selection_jitts[0]

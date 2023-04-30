@@ -198,11 +198,16 @@ if __name__ == '__main__':
         print(" "*20, end="")
         for ind, d in enumerate(ld):
             if whatis[ind].startswith("state"):
-                mean = "OnlyFORECAST"
+                bad_count = 0
+                total_count = 0
                 for state in d.values():
+                    total_count += 1
                     if state != "Forecast":
-                        mean = "ExitsFORECAST"
-                        break
+                        bad_count += 1
+                if (1 - (bad_count / total_count)) >= 0.75:
+                    mean = "SLA is OK"
+                else:
+                    mean = "BAD SLA"
             elif len(d.values()) != 1 and whatis[ind].startswith("mean speed"):
                 '''We count mean speed ignoring last sample, because we are not sure if last period of time completed'''
                 mean = round(sum([*d.values()][:-1])/len([*d.values()][:-1]), 6)

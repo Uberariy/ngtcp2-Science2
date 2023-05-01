@@ -525,7 +525,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     ngtcp2_tstamp ts) {
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
     if ((bbr->ultra_loss > cstat->frcst_loss * 1.13 + 0.035) || // * 1.13 + 0.035
-        ((bbr->ultra_bw < cstat->frcst_bw * (1.0 - 0.2)) && (cstat->frcst_loss < 0.1)) ||
+        (bbr->ultra_bw < cstat->frcst_bw * (1.0 - 0.2)) ||
         (cstat->ultra_rtt > cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
       // One of parameter's gone wild
       if ((ts > bbr->forecast_good_stamp + NGTCP2_BBRFRCST_FAILURE_INTERVAL) &&
@@ -1155,7 +1155,7 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBR2_STATE_PROBE_RTT &&
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
       (bbr->ultra_loss <= cstat->frcst_loss * 1.13 + 0.035) && // * 1.13 + 0.035
-      ((bbr->ultra_bw >= cstat->frcst_bw * (1.0 - 0.2)) || cstat->frcst_loss >= 0.1) && // Because with higher losses, speed drops
+      (bbr->ultra_bw >= cstat->frcst_bw * (1.0 - 0.2)) && // Because with higher losses, speed drops
       (cstat->ultra_rtt <= cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);

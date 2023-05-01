@@ -25,26 +25,26 @@ if __name__ == "__main__":
     path_to_change = Path("ChangeExperiment.py")
     path_to_mininet_run = Path("main.py")
     path_to_agent = Path("../ngtcp2-Science/")
-    path_to_statlog_folder_in_agent = Path("perf/sla_p3/")
+    path_to_statlog_folder_in_agent = Path("perf/sla_bbr2_p1/")
 
     '''Ensure, that folder to save experiments exists'''
     if not os.path.exists(path_to_agent / path_to_statlog_folder_in_agent):
         os.makedirs(path_to_agent / path_to_statlog_folder_in_agent)
 
     '''CONFIG: Change parameters grid below'''
-    selection_rtts = [20, 50, 90] #[10, 20, 40, 50, 75, 100]
-    selection_bws = [50, 100, 200] #[40, 80, 120, 160, 200, 240]
+    selection_rtts = [20, 50, 100] #[10, 20, 40, 50, 75, 100]
+    selection_bws = [40, 100, 200, 240] #[40, 80, 120, 160, 200, 240]
     selection_losses = [0.001, 0.1, 2] # [0.001, 0.01, 0.1, 0.5, 1, 2, 4] # [0.002, 0.005, 0.075, 0.5, 0.00125, 0.0015, 0.01, 0.015, 0.02, 0.1, 0.2, 0.4, 0.05, 0.15, 0.0025, 0.0075, 0.025, 0.03, 0.04, 0.003, 0.004, 0.0125, 0.3, 0.001, 0.75, 0.25, 3, 1.5, 2, 1, 1.25, 2.5]
     selection_jitts = [1] # Set jitter to 1ms, because w3 is not patched
     launches_per_parameter_set = 3
     
     expC = launches_per_parameter_set * len(selection_bws) * len(selection_jitts) * len(selection_losses) * len(selection_rtts) # Manual calculation of experiment upper bound
     timeConstraint = 40 # If something goes wrong during experiment
-    minimal_experiment_length = 30
+    minimal_experiment_length = 20
 
     expN = 0
     cur_jitt = selection_jitts[0]
-    cc = "bbrfrcst"
+    cc = "bbr2"
     t_start = time.time()
 
     for cur_rtt in selection_rtts:
@@ -59,7 +59,7 @@ if __name__ == "__main__":
                     try:
                         t_one_start = time.time()
                         print(f"#### MinimizeBBRParamTest: Running experiment ({expN}/...) - rtt: {cur_rtt} loss: {cur_loss} bw: {cur_bw} jitt: {cur_jitt}\t... ")
-                        cwnd = load_and_predict(path_to_models='models/', rtt=cur_rtt, loss=cur_loss, bw=1024*cur_bw) # Convert to Kbit/s
+                        cwnd = load_and_predict(path_to_models='cwnd_models/', rtt=cur_rtt, loss=cur_loss, bw=1024*cur_bw) # Convert to Kbit/s
                         print(f"#### CWND got from regressor: {cwnd}\t ")
 
                         '''Assosiate statfile name with current second and number (optional)
@@ -67,7 +67,7 @@ if __name__ == "__main__":
                         statfile = path_to_statlog_folder_in_agent / f"{expN}_exp_{curr_time_to_path()}"
 
                         '''Change some of the experiment parameters, others will stay constant'''
-                        change_experiment(exp_path=str(path_to_experiment), p_rtt=cur_rtt, p_loss=cur_loss, p_bw=cur_bw, p_jitt=cur_jitt, cc='bbrfrcst', r_path=str(statfile), cong_window=cwnd)
+                        change_experiment(exp_path=str(path_to_experiment), p_rtt=cur_rtt, p_loss=cur_loss, p_bw=cur_bw, p_jitt=cur_jitt, cc=cc, r_path=str(statfile), cong_window=cwnd)
 
                         '''Add additional information '''
                         info = dict()

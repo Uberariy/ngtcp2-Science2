@@ -1624,8 +1624,9 @@ int Handler::init(const Endpoint &ep, const Address &local_addr,
   params.frcst_rtt = config.frcst_rtt;
   params.frcst_loss = config.frcst_loss;
   params.frcst_bw = config.frcst_bw;
+  params.frcst_calculated_speed = config.frcst_calculated_speed;
   params.cong_wind_bbrfrcst = config.cong_wind_bbrfrcst;
-  fprintf(stderr, "3 Initial parameters %ld %ld\n", params.frcst_bw, config.frcst_bw);
+  fprintf(stderr, "Initial bw and speed: %ld %ld\n", params.frcst_bw, params.frcst_calculated_speed);
 
   if (ocid) {
     params.original_dcid = *ocid;
@@ -3374,6 +3375,7 @@ void config_set_default(Config &config) {
   config.frcst_rtt = 0;
   config.frcst_loss = 0;
   config.frcst_bw = 0;
+  config.frcst_calculated_speed = 0;
   config.cong_wind_bbrfrcst = 0;
 }
 } // namespace
@@ -3562,8 +3564,8 @@ Options:
   --inopsy-log
               Use InOpSy type logs, that tend to speed up statistics
               aggregation and simplify stderr output.
-  --bbrfrcst-params=<DURATION>,<P>,<SIZE>
-              Parameters: RTT, Loss, Bandwidth for BBRForecast cc algo.
+  --bbrfrcst-params=<DURATION>,<P>,<SIZE>,<SIZE>
+              Parameters: RTT, Loss, Bandwidth, SLA Speed for BBRForecast cc algo.
   --cong_wind_bbrfrcst=<SIZE>
               If this value is set to nonzero it would be used along
               with BBR Forecast congestion control, if it is set.
@@ -4041,12 +4043,19 @@ int main(int argc, char **argv) {
         }
         getline(ss, substr, ',');
         config.frcst_loss = std::stod(substr);
-        getline(ss, substr);
+        getline(ss, substr, ',');
         if (auto n = util::parse_uint_iec(substr); !n) {
           std::cerr << "--bbrfrcst-params bw: invalid argument" << std::endl;
           exit(EXIT_FAILURE);
         } else {
           config.frcst_bw = *n;
+        }
+        getline(ss, substr);
+        if (auto n = util::parse_uint_iec(substr); !n) {
+          std::cerr << "--bbrfrcst-params sla calculated speed (beta function): invalid argument" << std::endl;
+          exit(EXIT_FAILURE);
+        } else {
+          config.frcst_calculated_speed = *n;
         }
         break;
       }

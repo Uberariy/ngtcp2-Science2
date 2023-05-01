@@ -1417,6 +1417,7 @@ typedef struct ngtcp2_transport_params {
   ngtcp2_duration frcst_rtt;
   double frcst_loss;
   uint64_t frcst_bw;
+  uint64_t frcst_calculated_speed;
   uint64_t cong_wind_bbrfrcst;
 } ngtcp2_transport_params;
 
@@ -1554,6 +1555,7 @@ typedef struct ngtcp2_conn_stat {
   ngtcp2_duration frcst_rtt;
   double frcst_loss;
   uint64_t frcst_bw;
+  uint64_t frcst_calculated_speed;
   ngtcp2_duration ultra_rtt;
   double ultra_loss;
   uint64_t ultra_bw;

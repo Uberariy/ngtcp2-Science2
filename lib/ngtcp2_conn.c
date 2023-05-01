@@ -779,6 +779,7 @@ static void conn_reset_conn_stat_cc(ngtcp2_conn *conn,
   cstat->frcst_rtt = 0;
   cstat->frcst_loss = 0;
   cstat->frcst_bw = 0;
+  cstat->frcst_calculated_speed = 0;
   cstat->cong_wind_bbrfrcst = 0;
 }
 
@@ -1059,8 +1060,8 @@ static int conn_new(ngtcp2_conn **pconn, const ngtcp2_cid *dcid,
   (*pconn)->cstat.frcst_rtt = params->frcst_rtt;
   (*pconn)->cstat.frcst_loss = params->frcst_loss;
   (*pconn)->cstat.frcst_bw = params->frcst_bw;
+  (*pconn)->cstat.frcst_calculated_speed = params->frcst_calculated_speed;
   (*pconn)->cstat.cong_wind_bbrfrcst = params->cong_wind_bbrfrcst;
-  //fprintf(stderr, "2 Initial parameters %ld %ld\n", (*pconn)->cstat.frcst_bw, params->frcst_bw);
 
   (*pconn)->cstat.bbr2_loss_tresh = params->bbr2_loss_tresh;
   (*pconn)->cstat.bbr2_beta = params->bbr2_beta;

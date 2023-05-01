@@ -178,6 +178,7 @@ struct Config {
   ngtcp2_duration frcst_rtt;
   double frcst_loss;
   uint64_t frcst_bw;
+  uint64_t frcst_calculated_speed;
   uint64_t cong_wind_bbrfrcst;
 };
 

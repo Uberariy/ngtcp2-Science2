@@ -566,7 +566,7 @@ static void bbr_update_model_and_state(ngtcp2_bbr2_cc *bbr,
   bbr_update_latest_delivery_signals(bbr, cstat);
   bbr_update_congestion_signals(bbr, cstat, ack);
   bbr_update_ack_aggregation(bbr, cstat, ack, ts);
-  bbr_check_forecast_done(bbr, ack, cstat, ts); // Commend this line to remain in forecast forever
+  // bbr_check_forecast_done(bbr, ack, cstat, ts); // Commend this line to remain in forecast forever
   bbr_check_startup_done(bbr, ack);
   bbr_check_drain(bbr, cstat, ts);
   bbr_update_probe_bw_cycle_phase(bbr, cstat, ack, ts);

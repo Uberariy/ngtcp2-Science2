@@ -27,7 +27,7 @@ def runFlow( net: Mininet, flowParams: SdwanFlow, topoParams: TopoParams, bbrPar
 
     cong_wind_bbrfrcst = int(topoParams.linkParams[0].cong_window)
     sla_r_speed = load_and_predict(path_to_models='speed_models/', cc='bbrfrcst', rtt=p_rtt, loss=p_loss, bw=1024*p_bw) # Convert to Kbit/s
-    sla_r_speed = max(sla_r_speed, p_bw*1024)
+    sla_r_speed = int(min(sla_r_speed, p_bw*1024))
 
     h1, h2 = net.get( "h1", "h2" )
     h1.cmd(f"cd {agentParams.agent_path}")
@@ -42,7 +42,7 @@ def runFlow( net: Mininet, flowParams: SdwanFlow, topoParams: TopoParams, bbrPar
     states = ""
     duration = int(flowParams.timeStop - flowParams.timeStart)
     if agentParams.cong_control == "bbrfrcst":
-        cc_params += f"--bbrfrcst-params={p_rtt},{p_loss},{sla_r_speed} --cong_wind_bbrfrcst={cong_wind_bbrfrcst}"
+        cc_params += f"--bbrfrcst-params={p_rtt},{p_loss},{sla_r_speed*1024//8} --cong_wind_bbrfrcst={cong_wind_bbrfrcst}"
         states += "--states"
     # FOR DIPLOMA:
     # os.environ["LD_LIBRARY_PATH"] = "/home/admsys/inopsy/ngtcp2-Science/lib/.libs/:/home/admsys/inopsy/nghttp3/lib/.libs/:/home/admsys/inopsy/openssl/:/home/admsys/inopsy/ngtcp2-Science/crypto/openssl/.libs/"

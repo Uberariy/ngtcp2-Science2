@@ -24,7 +24,7 @@ if __name__ == "__main__":
     path_to_change = Path("ChangeExperiment.py")
     path_to_mininet_run = Path("main.py")
     path_to_agent = Path("../ngtcp2-Science/")
-    path_to_statlog_folder_in_agent = Path("perf/minimize_virt1_cwnd_p6/") # Path, where we trash all experiment logs
+    path_to_statlog_folder_in_agent = Path("perf/minimize_virt1_cwnd_p9_low_rtt_start_cwnd_patched/") # Path, where we trash all experiment logs
     path_to_minimization = path_to_agent / path_to_statlog_folder_in_agent / f"{curr_time_to_path()}.minimize" # The path to minimization log, mostly for testing
     path_to_optimal_params = path_to_agent / path_to_statlog_folder_in_agent / f"perfresCWND{curr_time_to_path()}.optimal"
 
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         os.makedirs(path_to_agent / path_to_statlog_folder_in_agent)
 
     '''CONFIG: Change parameters grid below'''
-    segment_rtts = [10, 100]
+    segment_rtts = [2, 25]
     segment_bws = [40, 230]
     # selection_losses = [0.002, 0.005, 0.075, 0.5, 0.00125, 0.0015, 0.01, 0.015, 0.02, 0.1,
     #    0.2, 0.4, 0.05, 0.15, 0.0025, 0.0075, 0.025, 0.03, 0.04, 0.003,
@@ -79,11 +79,11 @@ if __name__ == "__main__":
             answ_rtts = []
 
             '''Experimentally change number of runs depending on speed variance'''
-            launches_per_parameter_set = 5
+            launches_per_parameter_set = 4
             if cur_loss >= 0.1:
-                launches_per_parameter_set = 6
+                launches_per_parameter_set = 5
             if cur_loss >= 1:
-                launches_per_parameter_set = 7
+                launches_per_parameter_set = 6
 
             signal.signal(signal.SIGALRM, signal_handler)
             expN_aim = expN + launches_per_parameter_set
@@ -186,10 +186,10 @@ if __name__ == "__main__":
     cc = 'bbrfrcst'
 
     # The order is: 
-    minimal_value = 50000
-    maximal_value = 3500000
+    minimal_value = 2000
+    maximal_value = 800000
 
-    start_value = 1250000
+    start_value = 180000
 
     minimization_method = '"Binary Search by Uberariy"'
     with open(path_to_optimal_params, 'a+') as resultf:

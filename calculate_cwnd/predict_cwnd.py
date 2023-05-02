@@ -22,7 +22,13 @@ def load_and_predict(path_to_models, rtt, loss, bw):
     loss - %,
     bw - Kbit/s
     '''
-    model = pickle.load(open(Path(path_to_models) / "poly_reg_lasso_degree_deg7.txt", 'rb'))
+
+    '''Choose a model to load'''
+    # model = pickle.load(open(Path(path_to_models) / "poly_reg_lasso_degree_deg7.txt", 'rb'))
+    # model = pickle.load(open(Path(path_to_models) / "poly_reg_ridge_degree_deg7.txt", 'rb'))
+    model = CatBoostRegressor()
+    model.load_model(Path(path_to_models) / "catboost.cbm")
+
     degree = 7
 
     col = ["Channel RTT (ms)", "Channel Loss (%)", "Channel BW (Kbit/s)"]
@@ -30,13 +36,13 @@ def load_and_predict(path_to_models, rtt, loss, bw):
 
     y_pred = model.predict(X)
 
-    # print(X, y_pred)
+    print(y_pred)
 
-    return y_pred[0] * 0.9985
+    return y_pred[0] * 1.00014 # Check bias in train notebook perf/congestion_reg.py based on choosen model
 
 arg_parser = ArgumentParser(prog='choose_channel',
                             description='')   
-arg_parser.add_argument('path_models', metavar='PATH_MODELS', nargs='?', type=Path, default='models/',
+arg_parser.add_argument('path_models', metavar='PATH_MODELS', nargs='?', type=Path, default='cwnd_models/',
                         help='Path where the models used are. ')
 
 arg_parser.add_argument('rtt', metavar='RTT', type=int,

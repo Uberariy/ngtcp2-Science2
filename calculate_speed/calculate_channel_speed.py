@@ -55,7 +55,7 @@ def load_and_predict(path_to_models, cc, rtt, loss, bw):
 
 arg_parser = ArgumentParser(prog='choose_channel',
                             description='')   
-arg_parser.add_argument('path_models', metavar='PATH_MODELS', nargs='?', type=str, default='models/',
+arg_parser.add_argument('path_models', metavar='PATH_MODELS', nargs='?', type=str, default='speed_models/',
                         help='Path where the models used are. ')
 
 arg_parser.add_argument('cc', metavar='CC', type=str,
@@ -68,8 +68,5 @@ arg_parser.add_argument('bw', metavar='BW', type=int,
                         help='Bw (Kbit/s) for dataset. ')
 
 if __name__ == "__main__":
-    '''Change config if needed: '''
-    path_to_models = Path("models/")
-
     args = arg_parser.parse_args()
     result_vector = load_and_predict(args.path_models, args.cc, args.rtt, args.loss, args.bw)

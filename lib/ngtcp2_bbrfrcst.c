@@ -525,7 +525,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     ngtcp2_tstamp ts) {
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
     if ((bbr->ultra_loss > cstat->frcst_loss * 1.13 + 0.035) || // * 1.13 + 0.035
-        (bbr->ultra_bw < cstat->frcst_calculated_speed * (1.0 - 0.2)) ||
+        ((bbr->ultra_bw < cstat->frcst_calculated_speed * (1.0 - 0.2)) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) ||
         (cstat->ultra_rtt > cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
       // One of parameter's gone wild
       if ((ts > bbr->forecast_good_stamp + NGTCP2_BBRFRCST_FAILURE_INTERVAL) &&
@@ -1145,6 +1145,10 @@ static uint64_t bbr_inflight_hi_from_lost_packet(ngtcp2_conn_stat *cstat,
   return inflight_prev + lost_prefix;
 }
 
+int can_check_bw(rtt, bw) {
+  return ((rtt > 10) && (rtt <= 100) && (bw > 80 * 1024 * 128) && (bw < 400 * 1024 * 128));
+}
+
 static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
                                ngtcp2_tstamp ts) {
   // We don't want to enter forecast from these states for some reasons
@@ -1155,7 +1159,7 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBR2_STATE_PROBE_RTT &&
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
       (bbr->ultra_loss <= cstat->frcst_loss * 1.13 + 0.035) && // * 1.13 + 0.035
-      (bbr->ultra_bw >= cstat->frcst_calculated_speed * (1.0 - 0.2)) && // Because with higher losses, speed drops
+      ((bbr->ultra_bw >= cstat->frcst_calculated_speed * (1.0 - 0.2)) || can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) && // Because with higher losses, speed drops
       (cstat->ultra_rtt <= cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);

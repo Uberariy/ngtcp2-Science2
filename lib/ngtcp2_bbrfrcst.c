@@ -519,6 +519,10 @@ static void bbr_enter_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_tstamp ts) {
   bbr->cwnd_gain = 1;
 } // uberariy
 
+int can_check_bw(ngtcp2_duration rtt, uint64_t bw) {
+  return ((rtt > 10) && (rtt <= 100) && (bw > 80 * 1024 * 128) && (bw <= 400 * 1024 * 128));
+}
+
 static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     const ngtcp2_cc_ack *ack,
                                     ngtcp2_conn_stat *cstat,
@@ -1143,10 +1147,6 @@ static uint64_t bbr_inflight_hi_from_lost_packet(ngtcp2_conn_stat *cstat,
   }
 
   return inflight_prev + lost_prefix;
-}
-
-int can_check_bw(ngtcp2_duration rtt, uint64_t bw) {
-  return ((rtt > 10) && (rtt <= 100) && (bw > 80 * 1024 * 128) && (bw <= 400 * 1024 * 128));
 }
 
 static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,

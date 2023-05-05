@@ -1,0 +1,2 @@
+channel_rtt:20 channel_loss:0.001 channel_bw:40 channel_jitt:1 channel_congestion_control:bbrfrcst cwnd:124726.40967443376 1<function curr_time_to_path at 0x7f7266efd090>
+channel_rtt:20 channel_loss:0.001 channel_bw:40 channel_jitt:1 channel_congestion_control:bbrfrcst cwnd:124726.40967443376 1<function curr_time_to_path at 0x7f707b709090>

@@ -1,0 +1,11 @@
+[{'bytes sent: ': 8205644, 'mean cwnd: ': 228057.0, 'mean jitter: ': 0.597523, 'mean loss2: ': 0.0099,
+    'mean loss: ': 1.022145, 'mean s_rtt: ': 24.058824, 'state: ': Forecast, time: 0.0-1.0},
+  {'bytes sent: ': 9092400, 'mean cwnd: ': 228057.0, 'mean jitter: ': 0.326531, 'mean loss2: ': 0.00237,
+    'mean loss: ': 0.245624, 'mean s_rtt: ': 23.287284, 'state: ': Forecast, time: 1.0-2.0},
+  {'bytes sent: ': 8828400, 'mean cwnd: ': 228057.0, 'mean jitter: ': 0.549618, 'mean loss2: ': 0.009992,
+    'mean loss: ': 1.056782, 'mean s_rtt: ': 23.561069, 'state: ': Forecast, time: 2.0-3.0},
+  {'bytes sent: ': 2407438, 'mean cwnd: ': 228057.0, 'mean jitter: ': 0.6, 'mean loss2: ': 0.010777,
+    'mean loss: ': 1.14051, 'mean s_rtt: ': 23.816, 'state: ': Forecast, time: 3.0-4.0},
+  {'bytes sent: ': 7133470.5, 'mean cwnd: ': 228057.0, 'mean jitter: ': 0.518418,
+    'mean loss2: ': 0.00826, 'mean loss: ': 0.814305, 'mean s_rtt: ': 23.680794, 'state: ': SLA
+      is OK, time: global}]

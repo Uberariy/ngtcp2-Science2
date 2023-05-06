@@ -686,7 +686,7 @@ static void bbr_update_max_bw(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
 
     bbr->max_bw = ngtcp2_window_filter_get_best(&bbr->max_bw_filter);
     if (bbr->max_bw != 0) {
-      bbr->ultra_bw = (bbr->ultra_bw * 63 + bbr->max_bw) / 64;
+      bbr->ultra_bw = (bbr->ultra_bw * 31 + bbr->max_bw) / 32;
     }
 
     ngtcp2_log_info(bbr->ccb.log, NGTCP2_LOG_EVENT_RCV,
@@ -1058,7 +1058,7 @@ static int is_inflight_too_high(ngtcp2_bbr2_cc *bbr,
                   // "bbr2 on pckt_loss loss2=%f", 
                   // (float)(rs->lost * 100
                   // / rs->tx_in_flight));
-  bbr->ultra_loss = (bbr->ultra_loss * 127 + (float)rs->lost * bbr->bbr2_loss_tresh_denom / rs->tx_in_flight) / 128;
+  bbr->ultra_loss = (bbr->ultra_loss * 31 + (float)rs->lost * bbr->bbr2_loss_tresh_denom / rs->tx_in_flight) / 32;
   // ngtcp2_log_info(bbr->ccb.log, NGTCP2_LOG_EVENT_RCV, "bbrfrcst updated ultra_loss=%f", bbr->ultra_loss);
   //                 "bbr2 on pckt_loss loss2=%f", 
   //                 (float)rs->lost * bbr->bbr2_loss_tresh_denom 
@@ -1159,7 +1159,7 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBR2_STATE_PROBE_RTT &&
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
       (bbr->ultra_loss <= cstat->frcst_loss * 1.13 + 0.035) && // * 1.13 + 0.035
-      ((bbr->ultra_bw >= cstat->frcst_calculated_speed * (1.0 - 0.2)) || can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) && // Because with higher losses, speed drops
+      ((bbr->ultra_bw >= cstat->frcst_calculated_speed * (1.0 - 0.2)) || (!can_check_bw(cstat->frcst_rtt, cstat->frcst_bw))) && // Because with higher losses, speed drops
       (cstat->ultra_rtt <= cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);

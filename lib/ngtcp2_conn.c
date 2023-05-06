@@ -11718,7 +11718,7 @@ void ngtcp2_conn_update_rtt(ngtcp2_conn *conn, ngtcp2_duration rtt,
                                               : cstat->smoothed_rtt - rtt)) /
                     4;
     cstat->smoothed_rtt = (cstat->smoothed_rtt * 7 + rtt) / 8;
-    cstat->ultra_rtt = (cstat->ultra_rtt * 127 + rtt) / 128;
+    cstat->ultra_rtt = (cstat->ultra_rtt * 31 + rtt) / 32;
   }
 
   ngtcp2_log_info(&conn->log, NGTCP2_LOG_EVENT_RCV,

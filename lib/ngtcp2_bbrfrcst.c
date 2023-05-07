@@ -520,7 +520,7 @@ static void bbr_enter_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_tstamp ts) {
 } // uberariy
 
 int can_check_bw(ngtcp2_duration rtt, uint64_t bw) {
-  return ((rtt > 10) && (rtt <= 100) && (bw > 80 * 1024 * 128) && (bw <= 400 * 1024 * 128));
+  return (((uint64_t)(rtt / NGTCP2_MILLISECONDS) > 10) && ((uint64_t)(rtt / NGTCP2_MILLISECONDS) <= 100) && (bw > 80 * 1024 * 128) && (bw <= 400 * 1024 * 128));
 }
 
 static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
@@ -545,7 +545,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
       }
     } else {
       // Parameters are normal
-      fprintf(stderr, "Good stamp");
+      fprintf(stderr, "Good stamp", cstat->ultra_rtt);
       bbr->forecast_good_stamp = ts;
     }
   }

@@ -687,7 +687,7 @@ static void bbr_update_max_bw(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
 
     bbr->max_bw = ngtcp2_window_filter_get_best(&bbr->max_bw_filter);
     if (bbr->max_bw != 0) {
-      bbr->ultra_bw = (bbr->ultra_bw * 31 + bbr->max_bw) / 32;
+      bbr->ultra_bw = (bbr->ultra_bw * 127 + bbr->max_bw) / 128;
     }
 
     ngtcp2_log_info(bbr->ccb.log, NGTCP2_LOG_EVENT_RCV,
@@ -1059,7 +1059,7 @@ static int is_inflight_too_high(ngtcp2_bbr2_cc *bbr,
                   // "bbr2 on pckt_loss loss2=%f", 
                   // (float)(rs->lost * 100
                   // / rs->tx_in_flight));
-  bbr->ultra_loss = (bbr->ultra_loss * 31 + (float)rs->lost * bbr->bbr2_loss_tresh_denom / rs->tx_in_flight) / 32;
+  bbr->ultra_loss = (bbr->ultra_loss * 127 + (float)rs->lost * bbr->bbr2_loss_tresh_denom / rs->tx_in_flight) / 128;
   // ngtcp2_log_info(bbr->ccb.log, NGTCP2_LOG_EVENT_RCV, "bbrfrcst updated ultra_loss=%f", bbr->ultra_loss);
   //                 "bbr2 on pckt_loss loss2=%f", 
   //                 (float)rs->lost * bbr->bbr2_loss_tresh_denom 

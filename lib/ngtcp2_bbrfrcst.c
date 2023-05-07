@@ -545,7 +545,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
       }
     } else {
       // Parameters are normal
-      fprintf(stderr, "Good stamp", cstat->ultra_rtt);
+      fprintf(stderr, "Good stamp %" PRIu64 " condition: %d", (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), (int)(cstat->ultra_rtt > cstat->frcst_rtt * (1.0 + 0.2) + 7));
       bbr->forecast_good_stamp = ts;
     }
   }

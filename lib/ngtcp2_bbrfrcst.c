@@ -529,7 +529,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     ngtcp2_tstamp ts) {
   fprintf(stderr, "bbr_check_forecast_done UltraRTT: %" PRIu64 " cstat->frcst_rtt: %" PRIu64 " bbr->ultra_loss: %f cstat->frcst_loss: %f bbr->ultra_bw: %" PRIu64 " cstat->frcst_calculated_speed: %" PRIu64 " can_check_bw: %d\n", 
     (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), 
-    (uint64_t)((cstat->frcst_rtt * 12 / 10 + 7) / NGTCP2_MILLISECONDS), 
+    (uint64_t)(cstat->frcst_rtt / NGTCP2_MILLISECONDS) * 12 / 10 + 7, 
     bbr->ultra_loss,
     (cstat->frcst_loss * 1.13 + 0.035),
     bbr->ultra_bw,
@@ -539,7 +539,7 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
     if ((bbr->ultra_loss > (cstat->frcst_loss * 1.13 + 0.035)) || // * 1.13 + 0.035
         ((bbr->ultra_bw < (cstat->frcst_calculated_speed * 8 / 10)) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) ||
-        (cstat->ultra_rtt > (cstat->frcst_rtt * 12 / 10 + 7))) {
+        ((uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS) > ((uint64_t)(cstat->frcst_rtt / NGTCP2_MILLISECONDS) * 12 / 10 + 7))) {
       // One of parameter's gone wild
       if ((ts > bbr->forecast_good_stamp + NGTCP2_BBRFRCST_FAILURE_INTERVAL) &&
          (ts > bbr->probe_rtt_min_stamp + NGTCP2_BBR_PROBE_RTT_INTERVAL)) {
@@ -1169,7 +1169,7 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
       (bbr->ultra_loss <= (cstat->frcst_loss * 1.13 + 0.035)) && // * 1.13 + 0.035
       ((bbr->ultra_bw >= (cstat->frcst_calculated_speed * 8 / 10)) || (!can_check_bw(cstat->frcst_rtt, cstat->frcst_bw))) &&
-      (cstat->ultra_rtt <= (cstat->frcst_rtt * 12 / 10 + 7))) {
+      ((uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS) <= ((uint64_t)(cstat->frcst_rtt / NGTCP2_MILLISECONDS) * 12 / 10 + 7))) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);
 

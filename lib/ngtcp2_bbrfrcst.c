@@ -527,7 +527,15 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     const ngtcp2_cc_ack *ack,
                                     ngtcp2_conn_stat *cstat,
                                     ngtcp2_tstamp ts) {
-  fprintf(stderr, "bbr_check_forecast_done UltraRTT: %" PRIu64 " can_check_bw: %d\n", (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), can_check_bw(cstat->frcst_rtt, cstat->frcst_bw));
+  fprintf(stderr, "bbr_check_forecast_done UltraRTT: %" PRIu64 " cstat->frcst_rtt: %" PRIu64 " bbr->ultra_loss: %f cstat->frcst_loss: %f bbr->ultra_bw: %" PRIu64 " cstat->frcst_calculated_speed: %" PRIu64 " can_check_bw: %d\n", 
+    (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), 
+    (uint64_t)((cstat->frcst_rtt * (1.0 + 0.2) + 7) / NGTCP2_MILLISECONDS), 
+    bbr->ultra_loss,
+    (cstat->frcst_loss * 1.13 + 0.035),
+    bbr->ultra_bw,
+    (cstat->frcst_calculated_speed * (1.0 - 0.2)),
+    ((bbr->ultra_bw < (cstat->frcst_calculated_speed * (1.0 - 0.2))) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw))
+  );
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
     if ((bbr->ultra_loss > (cstat->frcst_loss * 1.13 + 0.035)) || // * 1.13 + 0.035
         ((bbr->ultra_bw < (cstat->frcst_calculated_speed * (1.0 - 0.2))) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) ||

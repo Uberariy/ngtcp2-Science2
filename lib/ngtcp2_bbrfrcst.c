@@ -527,10 +527,11 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
                                     const ngtcp2_cc_ack *ack,
                                     ngtcp2_conn_stat *cstat,
                                     ngtcp2_tstamp ts) {
+  fprintf(stderr, "bbr_check_forecast_done UltraRTT: %" PRIu64 " can_check_bw: %d\n", (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), can_check_bw(cstat->frcst_rtt, cstat->frcst_bw));
   if (bbr->state == NGTCP2_BBRFRCST_STATE_FRCST) {
-    if ((bbr->ultra_loss > cstat->frcst_loss * 1.13 + 0.035) || // * 1.13 + 0.035
-        ((bbr->ultra_bw < cstat->frcst_calculated_speed * (1.0 - 0.2)) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) ||
-        (cstat->ultra_rtt > cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
+    if ((bbr->ultra_loss > (cstat->frcst_loss * 1.13 + 0.035)) || // * 1.13 + 0.035
+        ((bbr->ultra_bw < (cstat->frcst_calculated_speed * (1.0 - 0.2))) && can_check_bw(cstat->frcst_rtt, cstat->frcst_bw)) ||
+        (cstat->ultra_rtt > (cstat->frcst_rtt * (1.0 + 0.2) + 7))) {
       // One of parameter's gone wild
       if ((ts > bbr->forecast_good_stamp + NGTCP2_BBRFRCST_FAILURE_INTERVAL) &&
          (ts > bbr->probe_rtt_min_stamp + NGTCP2_BBR_PROBE_RTT_INTERVAL)) {
@@ -545,7 +546,6 @@ static void bbr_check_forecast_done(ngtcp2_bbr2_cc *bbr,
       }
     } else {
       // Parameters are normal
-      fprintf(stderr, "Good stamp %" PRIu64 " condition: %d\n", (uint64_t)(cstat->ultra_rtt / NGTCP2_MILLISECONDS), (int)(cstat->ultra_rtt > cstat->frcst_rtt * (1.0 + 0.2) + 7));
       bbr->forecast_good_stamp = ts;
     }
   }
@@ -1159,9 +1159,9 @@ static void bbr_check_forecast(ngtcp2_bbr2_cc *bbr, ngtcp2_conn_stat *cstat,
       bbr->state != NGTCP2_BBR2_STATE_DRAIN &&
       bbr->state != NGTCP2_BBR2_STATE_PROBE_RTT &&
       bbr->state != NGTCP2_BBRFRCST_STATE_FRCST &&
-      (bbr->ultra_loss <= cstat->frcst_loss * 1.13 + 0.035) && // * 1.13 + 0.035
-      ((bbr->ultra_bw >= cstat->frcst_calculated_speed * (1.0 - 0.2)) || (!can_check_bw(cstat->frcst_rtt, cstat->frcst_bw))) &&
-      (cstat->ultra_rtt <= cstat->frcst_rtt * (1.0 + 0.2) + 7)) {
+      (bbr->ultra_loss <= (cstat->frcst_loss * 1.13 + 0.035)) && // * 1.13 + 0.035
+      ((bbr->ultra_bw >= (cstat->frcst_calculated_speed * (1.0 - 0.2))) || (!can_check_bw(cstat->frcst_rtt, cstat->frcst_bw))) &&
+      (cstat->ultra_rtt <= (cstat->frcst_rtt * (1.0 + 0.2) + 7))) {
     bbr->forecast_enter_flag = 0;
     bbr_enter_forecast(bbr, ts);
 

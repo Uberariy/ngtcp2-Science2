@@ -1434,7 +1434,7 @@ static void bbr_bound_cwnd_for_forecast(ngtcp2_bbr2_cc *bbr,
   if ((cstat->cong_wind_bbrfrcst != 0) && 0) {
     forecast_cwnd = cstat->cong_wind_bbrfrcst;
   } else {
-    forecast_cwnd = (double)cstat->frcst_bw * cstat->frcst_rtt * 0.85 *
+    forecast_cwnd = (double)cstat->frcst_bw * cstat->frcst_rtt *
     100 / (100 + (100 * cstat->frcst_loss) / (100 - cstat->frcst_loss)) 
     / NGTCP2_SECONDS;
   }

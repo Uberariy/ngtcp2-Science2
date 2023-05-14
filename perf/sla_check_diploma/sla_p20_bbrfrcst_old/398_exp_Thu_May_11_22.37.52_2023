@@ -1,0 +1,13 @@
+[{'bytes sent: ': 13015803, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.342817, 'mean loss2: ': 0.01088,
+    'mean loss: ': 1.167322, 'mean s_rtt: ': 22.679943, 'state: ': Forecast, time: 0.0-1.0},
+  {'bytes sent: ': 14820241, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.120797, 'mean loss2: ': 0.003213,
+    'mean loss: ': 0.326534, 'mean s_rtt: ': 22.220423, 'state: ': Forecast, time: 1.0-2.0},
+  {'bytes sent: ': 14954541, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.110127, 'mean loss2: ': 0.0,
+    'mean loss: ': 0.0, 'mean s_rtt: ': 22.188608, 'state: ': Forecast, time: 2.0-3.0},
+  {'bytes sent: ': 15148940, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.029481, 'mean loss2: ': 0.002161,
+    'mean loss: ': 0.220583, 'mean s_rtt: ': 22.071934, 'state: ': Forecast, time: 3.0-4.0},
+  {'bytes sent: ': 1708800, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.0, 'mean loss2: ': 0.0,
+    'mean loss: ': 0.0, 'mean s_rtt: ': 22.010417, 'state: ': Forecast, time: 4.0-5.0},
+  {'bytes sent: ': 11929665.0, 'mean cwnd: ': 349385.0, 'mean jitter: ': 0.120644,
+    'mean loss2: ': 0.003251, 'mean loss: ': 0.136779, 'mean s_rtt: ': 22.234265,
+    'state: ': SLA is OK, time: global}]

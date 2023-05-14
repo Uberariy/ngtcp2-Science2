@@ -64,7 +64,7 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                     p_loss = datadict['additional_info']['channel_loss']
                     p_bw = datadict['additional_info']['channel_bw']
 
-                    # if p_loss != 2:
+                    # if p_loss != 0.5:
                     #     file_idx -= 1
                     #     continue
 
@@ -75,17 +75,33 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                         real_rtt = datadict['content'][-1]['mean s_rtt: ']
                         real_loss = datadict['content'][-1]['mean loss: ']
 
+                        if (p_rtt == 10) and (p_bw == 40) and (real_rtt > 21):
+                            print("Encountered bad")
+                            continue
+
+                        # if ("samples" in anno_d[(p_rtt, p_bw)]) and (anno_d[(p_rtt, p_bw)]["samples"] > 20):
+                        #     print("Enough")
+                        #     continue
+
                         if "samples" in anno_d[(p_rtt, p_bw)]:
                             '''Number of experiments'''
                             anno_d[(p_rtt, p_bw)]["samples"] += 1
                         else:
                             anno_d[(p_rtt, p_bw)]["samples"] = 1
-                        if "loss" in anno_d[(p_rtt, p_bw)]:
+
+                        '''Loss, RTT, BW observbations'''
+                        if "p_loss" in anno_d[(p_rtt, p_bw)]:
                             '''It is mean loss set in channel (by experiments)'''
                             anno_d[(p_rtt, p_bw)]["p_loss"] = anno_d[(p_rtt, p_bw)]["p_loss"] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
                             anno_d[(p_rtt, p_bw)]["p_loss"] += p_loss / anno_d[(p_rtt, p_bw)]["samples"]
                         else:
                             anno_d[(p_rtt, p_bw)]["p_loss"] = p_loss
+                        if "loss" in anno_d[(p_rtt, p_bw)]:
+                            '''It is mean loss set in channel (by experiments)'''
+                            anno_d[(p_rtt, p_bw)]["loss"] = anno_d[(p_rtt, p_bw)]["loss"] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
+                            anno_d[(p_rtt, p_bw)]["loss"] += real_loss / anno_d[(p_rtt, p_bw)]["samples"]
+                        else:
+                            anno_d[(p_rtt, p_bw)]["loss"] = real_loss
                         if "rtt" in anno_d[(p_rtt, p_bw)]:
                             '''It is mean real bw (by experiments)'''
                             anno_d[(p_rtt, p_bw)]["real_rtt"] = anno_d[(p_rtt, p_bw)]["real_rtt"] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
@@ -98,6 +114,8 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                             anno_d[(p_rtt, p_bw)]["real_bw"] += real_bw / anno_d[(p_rtt, p_bw)]["samples"]
                         else:
                             anno_d[(p_rtt, p_bw)]["real_bw"] = real_bw
+
+                        '''Some statistics of BW:'''
                         if "min_real_bw" in anno_d[(p_rtt, p_bw)]:
                             '''It is min real bw (by experiments)'''
                             if real_bw < anno_d[(p_rtt, p_bw)]["min_real_bw"]:
@@ -110,10 +128,13 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                                 anno_d[(p_rtt, p_bw)]["max_real_bw"] = real_bw
                         else:
                             anno_d[(p_rtt, p_bw)]["max_real_bw"] = real_bw
-                        # print(anno_d[(p_rtt, p_bw)]["samples"])
+
+                        '''SLA:'''
                         sla_d[(p_rtt, p_bw)] = sla_d[(p_rtt, p_bw)] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
                         if datadict['content'][-1]['state: '] == "SLA is OK":
                             sla_d[(p_rtt, p_bw)] += 1 / anno_d[(p_rtt, p_bw)]["samples"]
+
+                        '''Annotations:'''
                         anno_d[(p_rtt, p_bw)]["annotation4"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}".format(
                             int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
                             anno_d[(p_rtt, p_bw)]["samples"],
@@ -123,34 +144,59 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                         anno_d[(p_rtt, p_bw)]["annotation3"] = "SLA: {}/{}\nChannel loss: {}".format(
                             int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
                             anno_d[(p_rtt, p_bw)]["samples"],
-                            anno_d[(p_rtt, p_bw)]["p_loss"],
+                            round(anno_d[(p_rtt, p_bw)]["p_loss"], 3),
                         )
                         anno_d[(p_rtt, p_bw)]["rtt bbrfrcst annotation"] = "SLA RTT: {}\nBBRFRCST RTT: {}".format(
                             p_rtt,
-                            anno_d[(p_rtt, p_bw)]["real_rtt"],
+                            round(anno_d[(p_rtt, p_bw)]["real_rtt"], 3),
                         )
+                        anno_d[(p_rtt, p_bw)]["loss bbrfrcst annotation"] = "SLA loss: {}\nBBRFRCST loss: {}".format(
+                            round(anno_d[(p_rtt, p_bw)]["p_loss"], 3),
+                            round(anno_d[(p_rtt, p_bw)]["loss"], 3),
+                        )
+
                     elif (datadict['additional_info']['channel_congestion_control'] == additional_cc):
                         real_bbr_bw = convert_speed_to_kbit(datadict['content'][-1]['bytes sent: '] / parti)
+                        real_bbr_rtt = datadict['content'][-1]['mean s_rtt: ']
+                        real_bbr_loss = datadict['content'][-1]['mean loss: ']
+
                         '''Next condition can be ignored'''
-                        if (p_rtt, p_bw) not in anno_d:
-                            continue
+                        # if (p_rtt, p_bw) not in anno_d:
+                        #     continue
+
                         if "bbr_samples" in anno_d[(p_rtt, p_bw)]:
                             '''Number of experiments'''
                             anno_d[(p_rtt, p_bw)]["bbr_samples"] += 1
                         else:
                             anno_d[(p_rtt, p_bw)]["bbr_samples"] = 0
-                        if "bbr_loss" in anno_d[(p_rtt, p_bw)]:
+
+                        '''Loss, RTT, BW observbations'''
+                        if "bbr_rtt" in anno_d[(p_rtt, p_bw)]:
+                            '''It is mean real bw (by experiments)'''
+                            anno_d[(p_rtt, p_bw)]["bbr_rtt"] = anno_d[(p_rtt, p_bw)]["bbr_rtt"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+                            anno_d[(p_rtt, p_bw)]["bbr_rtt"] += real_bbr_rtt / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+                        else:
+                            anno_d[(p_rtt, p_bw)]["bbr_rtt"] = real_bbr_rtt
+                        if "bbr_p_loss" in anno_d[(p_rtt, p_bw)]:
                             '''It is mean loss set in channel (by experiments)'''
                             anno_d[(p_rtt, p_bw)]["bbr_p_loss"] = anno_d[(p_rtt, p_bw)]["bbr_p_loss"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
                             anno_d[(p_rtt, p_bw)]["bbr_p_loss"] += p_loss / anno_d[(p_rtt, p_bw)]["bbr_samples"]
                         else:
                             anno_d[(p_rtt, p_bw)]["bbr_p_loss"] = p_loss
+                        if "bbr_loss" in anno_d[(p_rtt, p_bw)]:
+                            '''It is mean loss set in channel (by experiments)'''
+                            anno_d[(p_rtt, p_bw)]["bbr_loss"] = anno_d[(p_rtt, p_bw)]["bbr_loss"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+                            anno_d[(p_rtt, p_bw)]["bbr_loss"] += real_bbr_loss / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+                        else:
+                            anno_d[(p_rtt, p_bw)]["bbr_loss"] = real_bbr_loss
                         if "bbr_real_bw" in anno_d[(p_rtt, p_bw)]:
                             '''It is mean real bw (by experiments)'''
                             anno_d[(p_rtt, p_bw)]["bbr_real_bw"] = anno_d[(p_rtt, p_bw)]["bbr_real_bw"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
                             anno_d[(p_rtt, p_bw)]["bbr_real_bw"] += real_bbr_bw / anno_d[(p_rtt, p_bw)]["bbr_samples"]
                         else:
                             anno_d[(p_rtt, p_bw)]["bbr_real_bw"] = real_bbr_bw
+
+                        '''Some statistics of BW:'''
                         if "bbr_min_real_bw" in anno_d[(p_rtt, p_bw)]:
                             '''It is min real bw (by experiments)'''
                             if real_bbr_bw < anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"]:
@@ -163,25 +209,38 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
                                 anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"] = real_bbr_bw
                         else:
                             anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"] = real_bbr_bw
-                        anno_d[(p_rtt, p_bw)]["annotation1"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\n{} speed:     {}".format(
-                            int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
-                            anno_d[(p_rtt, p_bw)]["samples"],
-                            anno_d[(p_rtt, p_bw)]["p_loss"],
-                            convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+
+                        '''Annotations:'''
+                        if "samples" in anno_d[(p_rtt, p_bw)]:
+                            anno_d[(p_rtt, p_bw)]["annotation1"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\n{} speed:     {}".format(
+                                int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+                                anno_d[(p_rtt, p_bw)]["samples"],
+                                round(anno_d[(p_rtt, p_bw)]["p_loss"], 3),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+                                additional_cc.upper(),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
+                            )
+                            anno_d[(p_rtt, p_bw)]["annotation2"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\n(min: {}, max: {})\n{} speed:         {}\n(min: {}, max: {})".format(
+                                int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+                                anno_d[(p_rtt, p_bw)]["samples"],
+                                round(anno_d[(p_rtt, p_bw)]["p_loss"], 3),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["min_real_bw"]),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["max_real_bw"]),
+                                additional_cc.upper(),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"]),
+                                convert_speed(anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"]),
+                            )
+                        anno_d[(p_rtt, p_bw)]["rtt cc annotation"] = "SLA RTT: {}\n{} RTT: {}".format(
+                            p_rtt,
                             additional_cc.upper(),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
+                            round(anno_d[(p_rtt, p_bw)]["bbr_rtt"], 3),
                         )
-                        anno_d[(p_rtt, p_bw)]["annotation2"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\n(min: {}, max: {})\n{} speed:         {}\n(min: {}, max: {})".format(
-                            int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
-                            anno_d[(p_rtt, p_bw)]["samples"],
-                            anno_d[(p_rtt, p_bw)]["p_loss"],
-                            convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["min_real_bw"]),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["max_real_bw"]),
+                        anno_d[(p_rtt, p_bw)]["loss cc annotation"] = "SLA loss: {}\n{} loss: {}".format(
+                            round(anno_d[(p_rtt, p_bw)]["bbr_p_loss"], 3),
                             additional_cc.upper(),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"]),
-                            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"]),
+                            round(anno_d[(p_rtt, p_bw)]["bbr_loss"], 3),
                         )
                         # print(anno_d[(p_rtt, p_bw)]["annotation"])
     good_data_amount = file_idx
@@ -190,22 +249,33 @@ def get_data_for_heatmap(paths, main_cc="bbrfrcst", additional_cc="bbr2"):
 
 #%%
 # INPUT:
-statfiles = ["sla_check_diploma/sla_p12_beta_func_additional_dataset_catboost_less_ultra",
-             "sla_check_diploma/sla_bbr2_p2"]
 
 additional_cc = "bbr2"
-sla, anno, _, _ = get_data_for_heatmap(statfiles, main_cc="bbrfrcst", additional_cc=additional_cc)
+statfiles = [
+    "sla_check_diploma/sla_p20_bbrfrcst_old",
+    f"sla_check_diploma/sla_{additional_cc}_p2",
+]
+
+sla, anno, _, _ = get_data_for_heatmap(statfiles, main_cc="bbrfrcstold", additional_cc=additional_cc)
 
 
 # %%
 
 task_names_possible = [
     "annotation1", # Compare speed of BBRFORECAST and additional_cc
-    "annotation",
-    "annotation3" # Compare RTT of BBRFORECAST and additional_cc
+    "annotation2", # Compare speed of BBRFORECAST and additional_cc (with data about BBRFORECAST min/max speed)
+    "annotation3", # BBRFORECAST SLA overview
+    "annotation4", # BBRFORECAST SLA overview (with BBRFORECAST speed)
+    "rtt bbrfrcst annotation", # BBRFORECAST RTT overview
+    "rtt cc annotation", # additional_cc RTT overview
+    "loss bbrfrcst annotation", # BBRFORECAST Loss overview
+    "loss cc annotation", # additional_cc Loss overview
 ]
 task_names = [
-    "annotation1"
+    "annotation3",
+    "annotation1",
+    "rtt bbrfrcst annotation", # BBRFORECAST RTT overview
+    "rtt cc annotation", # additional_cc RTT overview
 ]
 
 for task_name in task_names:
@@ -222,24 +292,33 @@ for task_name in task_names:
         tmp_l = []
         tmp_a_l = []
         for j in l_bws:
-            if task_name == "annotation3":
+            if task_name in ["annotation3", "annotation4"]:
                 tmp_l.append(sla[(i, j)])
-                if "annotation3" in anno[(i, j)]:
+                if task_name in anno[(i, j)]:
                     tmp_l[-1] += 1
-                    tmp_a_l.append(anno[(i, j)]["annotation3"])
+                    tmp_a_l.append(anno[(i, j)][task_name])
                 else:
                     tmp_a_l.append("No data")
-            if task_name == "annotation1":
-                if task_name in anno[(i, j)]:# and sla[(i, j)] == 1:
+            elif task_name in ["annotation1", "annotation2"]:
+                if task_name in anno[(i, j)]:
                     tmp_var = anno[(i, j)]["real_bw"] / anno[(i, j)]["bbr_real_bw"]
-                    # if tmp_var < 1:
-                        # tmp_var *= 4
-                        # tmp_var -= 4
                     tmp_l.append(tmp_var)
                     tmp_a_l.append(anno[(i, j)][task_name])
-                # elif "annotation1" in anno[(i, j)] and sla[(i, j)] != 1:
-                    # tmp_l.append(0)
-                    # tmp_a_l.append("SLA is not full")
+                else:
+                    tmp_l.append(0)
+                    tmp_a_l.append("No data")
+            elif task_name in ["rtt bbrfrcst annotation", "rtt cc annotation", "loss bbrfrcst annotation", "loss cc annotation"]:
+                if task_name in anno[(i, j)]:
+                    if task_name == "rtt bbrfrcst annotation":
+                        tmp_var = anno[(i, j)]["real_rtt"] / i
+                    elif task_name == "rtt cc annotation":
+                        tmp_var = anno[(i, j)]["bbr_rtt"] / i
+                    elif task_name == "loss bbrfrcst annotation":
+                        tmp_var = anno[(i, j)]["loss"] / anno[(i, j)]["p_loss"]
+                    elif task_name == "loss cc annotation":
+                        tmp_var = anno[(i, j)]["bbr_loss"] / anno[(i, j)]["bbr_p_loss"]
+                    tmp_l.append(tmp_var)
+                    tmp_a_l.append(anno[(i, j)][task_name])
                 else:
                     tmp_l.append(0)
                     tmp_a_l.append("No data")
@@ -248,17 +327,32 @@ for task_name in task_names:
             pd_sla.append(tmp_l)
     pd2_sla = pd.DataFrame(pd_sla, columns = l_bws, index = l_rtts)
     pd2_anno = pd.DataFrame(pd_anno)
-    # print(pd_anno, pd_sla, np.array(pd_sla).size, np.array(pd_anno).size)
-    # pd_anno = pd.Series(anno).reset_index()
-    if task_name == "annotation3":
+    if task_name in ["annotation3", "annotation4"]:
         plt.figure(figsize=(18, 12))
         sns.heatmap(pd2_sla, annot=pd2_anno, fmt="", center=0, linewidths=.5)
-        plt.title('SLA Goodness Statistics: FrcstR = 120 Mbit/s, FrcstRTT = 100 ms, FrcstLoss = 0.1')
-    if task_name == "annotation1":
+        plt.title(f'SLA Goodness Statistics (Mean coef: {round(pd2_sla.mean().mean() - 1, 3)})')
+        # plt.title('SLA Goodness Statistics. Frcst passed into algo: BW: 120 Mbit/s, RTT: 50 ms, loss is equal to the one set.')
+    elif task_name in ["annotation1", "annotation2"]:
         plt.figure(figsize=(20, 11))
         cmap = sns.diverging_palette(220, 10, as_cmap=True, s=100).reversed()
         sns.heatmap(pd2_sla, annot=pd2_anno, fmt="", center=1, linewidths=.5, robust=True, cmap=cmap)
-        plt.title(f'BBRFrcst vs {additional_cc.upper()} Statistics')
+        plt.title(f'BBRFrcst vs {additional_cc.upper()} Statistics (Mean coef: {round(pd2_sla.mean().mean(), 3)})')
+    elif task_name in ["rtt bbrfrcst annotation", "rtt cc annotation"]:
+        plt.figure(figsize=(20, 11))
+        cmap = sns.diverging_palette(220, 10, as_cmap=True, s=100)
+        sns.heatmap(pd2_sla, annot=pd2_anno, fmt="", vmin=1, center=1.6, vmax=2, linewidths=.5, robust=True, cmap=cmap)
+        if task_name == "rtt bbrfrcst annotation":
+            plt.title(f'BBRFRCST RTT Statistics (Mean coef: {round(pd2_sla.mean().mean(), 3)})')
+        if task_name == "rtt cc annotation":
+            plt.title(f'{additional_cc.upper()} RTT Statistics (Mean coef: {round(pd2_sla.mean().mean(), 3)})')
+    elif task_name in ["loss bbrfrcst annotation", "loss cc annotation"]:
+        plt.figure(figsize=(20, 11))
+        cmap = sns.diverging_palette(220, 10, as_cmap=True, s=100)
+        sns.heatmap(pd2_sla, annot=pd2_anno, fmt="", vmin=1, center=1.1, vmax=2, linewidths=.5, robust=True, cmap=cmap)
+        if task_name == "loss bbrfrcst annotation":
+            plt.title(f'BBRFRCST loss Statistics')
+        if task_name == "loss cc annotation":
+            plt.title(f'{additional_cc.upper()} loss Statistics')
     plt.xlabel('Channel BW - FrcstBW')
     plt.ylabel('Channel RTT - FrcstRTT')
 

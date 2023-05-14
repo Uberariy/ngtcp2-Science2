@@ -163,6 +163,134 @@ def get_data_yaml_optimal(paths):
 
     return pd.DataFrame(data, columns=col)
 
+def get_data_for_heatmap(paths):
+    '''(Legacy code of year 2022)
+    Each file in each dir is:
+
+{additional_info: {channel_bw: 200, channel_congestion_control: bbrfrcst, channel_jitt: 1,
+    channel_loss: 2, channel_rtt: 90, cwnd: 2124975.157509446}, content: [{'bytes sent: ': 5116144,
+
+        ...
+
+      'mean cwnd: ': 1297416.576883, 'mean jitter: ': 0.378005, 'mean loss2: ': 0.004307,
+      'mean loss: ': 0.416563, 'mean s_rtt: ': 94.821238, 'state: ': ExitsFORECAST,
+      time: global}]}
+    '''
+    sla_d = defaultdict(float)
+    anno_d = defaultdict(dict)
+    for filename in paths:
+        with open(filename, 'r') as f:
+            datalist = yaml.safe_load(f)
+            for datadict in datalist:
+                p_rtt = datadict['additional_info']['channel_rtt']
+                p_loss = datadict['additional_info']['channel_loss']
+                p_bw = datadict['additional_info']['channel_bw'] * 1024
+                parti = float(datadict['content'][0]['time'].split('-')[1]) - float(datadict['content'][0]['time'].split('-')[0])
+                real_bw = convert_speed_to_kbit(datadict['content'][-1]['bytes sent: '] / parti)
+                if "samples" in anno_d[(p_rtt, p_bw)]:
+                    '''Number of experiments'''
+                    anno_d[(p_rtt, p_bw)]["samples"] += 1
+                else:
+                    anno_d[(p_rtt, p_bw)]["samples"] = 1
+                if "loss" in anno_d[(p_rtt, p_bw)]:
+                    '''It is mean loss set in channel (by experiments)'''
+                    anno_d[(p_rtt, p_bw)]["p_loss"] = anno_d[(p_rtt, p_bw)]["p_loss"] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
+                    anno_d[(p_rtt, p_bw)]["p_loss"] += p_loss / anno_d[(p_rtt, p_bw)]["samples"]
+                else:
+                    anno_d[(p_rtt, p_bw)]["p_loss"] = p_loss
+                if "real_bw" in anno_d[(p_rtt, p_bw)]:
+                    '''It is mean real bw (by experiments)'''
+                    anno_d[(p_rtt, p_bw)]["real_bw"] = anno_d[(p_rtt, p_bw)]["real_bw"] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
+                    anno_d[(p_rtt, p_bw)]["real_bw"] += real_bw / anno_d[(p_rtt, p_bw)]["samples"]
+                else:
+                    anno_d[(p_rtt, p_bw)]["real_bw"] = real_bw
+                if "min_real_bw" in anno_d[(p_rtt, p_bw)]:
+                    '''It is min real bw (by experiments)'''
+                    if real_bw < anno_d[(p_rtt, p_bw)]["min_real_bw"]:
+                        anno_d[(p_rtt, p_bw)]["min_real_bw"] = real_bw
+                else:
+                    anno_d[(p_rtt, p_bw)]["min_real_bw"] = real_bw
+                if "max_real_bw" in anno_d[(p_rtt, p_bw)]:
+                    '''It is max real bw (by experiments)'''
+                    if real_bw > anno_d[(p_rtt, p_bw)]["max_real_bw"]:
+                        anno_d[(p_rtt, p_bw)]["max_real_bw"] = real_bw
+                else:
+                    anno_d[(p_rtt, p_bw)]["max_real_bw"] = real_bw
+                # print(anno_d[(p_rtt, p_bw)]["samples"])
+                sla_d[(p_rtt, p_bw)] = sla_d[(p_rtt, p_bw)] * (anno_d[(p_rtt, p_bw)]["samples"] - 1) / anno_d[(p_rtt, p_bw)]["samples"]
+                if i[3] == "SLA IS OKAY":
+                    sla_d[(p_rtt, p_bw)] += 1 / anno_d[(p_rtt, p_bw)]["samples"]
+                anno_d[(p_rtt, p_bw)]["annotation4"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}".format(
+                    int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+                    anno_d[(p_rtt, p_bw)]["samples"],
+                    anno_d[(p_rtt, p_bw)]["p_loss"],
+                    convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+                )
+                anno_d[(p_rtt, p_bw)]["annotation3"] = "SLA: {}/{}\nChannel loss: {}".format(
+                    int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+                    anno_d[(p_rtt, p_bw)]["samples"],
+                    anno_d[(p_rtt, p_bw)]["p_loss"],
+                )
+    patt = re.compile(r"BBR2experiment. (.*)(\n|.)*?Mean speed (.*)\n")
+    for i in patt.findall(maintext):
+        # print(i)
+        p_rtt = float(i[0].split()[1])
+        p_loss = float(i[0].split()[3])
+        p_bw = float(i[0].split()[5])
+        real_bbr_bw = float(i[2].split()[0]) / float(i[2].split()[3])
+        '''Next condition can be ignored'''
+        if (p_rtt, p_bw) not in anno_d:
+            continue
+        if "bbr_samples" in anno_d[(p_rtt, p_bw)]:
+            '''Number of experiments'''
+            anno_d[(p_rtt, p_bw)]["bbr_samples"] += 1
+        else:
+            anno_d[(p_rtt, p_bw)]["bbr_samples"] = 0
+        if "bbr_loss" in anno_d[(p_rtt, p_bw)]:
+            '''It is mean loss set in channel (by experiments)'''
+            anno_d[(p_rtt, p_bw)]["bbr_p_loss"] = anno_d[(p_rtt, p_bw)]["bbr_p_loss"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+            anno_d[(p_rtt, p_bw)]["bbr_p_loss"] += p_loss / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+        else:
+            anno_d[(p_rtt, p_bw)]["bbr_p_loss"] = p_loss
+        if "bbr_real_bw" in anno_d[(p_rtt, p_bw)]:
+            '''It is mean real bw (by experiments)'''
+            anno_d[(p_rtt, p_bw)]["bbr_real_bw"] = anno_d[(p_rtt, p_bw)]["bbr_real_bw"] * (anno_d[(p_rtt, p_bw)]["bbr_samples"] - 1) / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+            anno_d[(p_rtt, p_bw)]["bbr_real_bw"] += real_bbr_bw / anno_d[(p_rtt, p_bw)]["bbr_samples"]
+        else:
+            anno_d[(p_rtt, p_bw)]["bbr_real_bw"] = real_bbr_bw
+        if "bbr_min_real_bw" in anno_d[(p_rtt, p_bw)]:
+            '''It is min real bw (by experiments)'''
+            if real_bbr_bw < anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"]:
+                anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"] = real_bbr_bw
+        else:
+            anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"] = real_bbr_bw
+        if "bbr_max_real_bw" in anno_d[(p_rtt, p_bw)]:
+            '''It is max real bw (by experiments)'''
+            if real_bbr_bw > anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"]:
+                anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"] = real_bbr_bw
+        else:
+            anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"] = real_bbr_bw
+        anno_d[(p_rtt, p_bw)]["annotation1"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\nCUBIC speed:     {}".format(
+            int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+            anno_d[(p_rtt, p_bw)]["samples"],
+            anno_d[(p_rtt, p_bw)]["p_loss"],
+            convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
+        )
+        anno_d[(p_rtt, p_bw)]["annotation2"] = "SLA: {}/{}\nChannel loss: {}\nBBRFRCST speed: {}\n(min: {}, max: {})\nBBR2 speed:         {}\n(min: {}, max: {})".format(
+            int(sla_d[(p_rtt, p_bw)] * anno_d[(p_rtt, p_bw)]["samples"]),
+            anno_d[(p_rtt, p_bw)]["samples"],
+            anno_d[(p_rtt, p_bw)]["p_loss"],
+            convert_speed(anno_d[(p_rtt, p_bw)]["real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["min_real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["max_real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_min_real_bw"]),
+            convert_speed(anno_d[(p_rtt, p_bw)]["bbr_max_real_bw"]),
+        )
+        # print(anno_d[(p_rtt, p_bw)]["annotation"])
+    return sla_d, anno_d
+
 # %%
 '''Define pathes'''
 
@@ -178,7 +306,10 @@ if data_format_type == 1:
     paths_yml_dir = ['perfres_w3_speed_v3']
 if data_format_type == 2:
     paths_yml_dir = ['perfresCWNDWed_Mar__1_12.35.15_2023.optimal',
-                     'perfresCWNDWed_Mar__1_12.29.49_2023.optimal']
+                     'perfresCWNDWed_Mar__1_12.29.49_2023.optimal',
+                     'perfresCWND_additional_dataset/small_rtt/perfresCWNDTue_May__2_09.41.42_2023.optimal',
+                     'perfresCWND_additional_dataset/small_rtt/perfresCWNDTue_May__2_23.39.11_2023.optimal',
+                     'perfresCWND_additional_dataset/big_rtt/perfresCWNDSun_Apr_16_16.27.55_2023.optimal']
 
 '''Path to directory with xlsx files'''
 path_savexlsxs = "cc_perf_tests"
@@ -197,11 +328,13 @@ if __name__ == "__main__":
 # %%
 '''If we want to group by something and calculate means'''
 if __name__ == "__main__":
-    pass
+    print(data)
+# data.loc[data["Optimal CWND (bytes)"] < 3300000].loc[data["Optimal CWND (bytes)"] > 30000].sort_values(by="Optimal CWND (bytes)").head(20)
+    data = data.loc[data["Optimal CWND (bytes)"] < 3300000].loc[data["Optimal CWND (bytes)"] > 30000].sort_values(by="Optimal CWND (bytes)") # Treshold encountered
 
 # %%
 def explore_cong_window_in_one_dot(df_dot, dot, channel_features):
-    fig, axes = plt.subplots(3, 1, figsize=(9, 13))
+    fig, axes = plt.subplots(4, 1, figsize=(9, 13))
     fig.suptitle(f'Dependencies between BBR Congestion Window and features.\nRTT = {dot[1]} ms, Loss = {dot[2]} %, BW = {dot[3]} Kbit/s.')
     sns.lineplot(ax=axes[0],data=df_dot.loc[df["Preset Congestion Window (bytes)"] < 2000000], x="Preset Congestion Window (bytes)", y=f"Sender Speed (Kbit/s)", ci=70)
     # sns.lineplot(ax=axes[1],data=df_dot, x="Preset Congestion Window (bytes)", y=f"Sender lost data to data inflight (%)", ci=70)
@@ -232,7 +365,7 @@ import openpyxl
 if __name__ == "__main__":
     '''Save results in a xlsx'''
     if data_format_type in [2]:
-        data.to_excel(f"{path_savexlsxs}/optimal_speed_ML_v2.xlsx")
+        data.to_excel(f"{path_savexlsxs}/optimal_speed_ML_additional_dataset_v4.xlsx")
     else:
         print(f"Current task/format is {data_format_type} => skipping")
 

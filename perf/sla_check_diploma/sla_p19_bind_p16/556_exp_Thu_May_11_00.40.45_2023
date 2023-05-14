@@ -1,0 +1,4 @@
+[{'bytes sent: ': 10042745, 'mean cwnd: ': 444962.0, 'mean jitter: ': 0.373673, 'mean loss2: ': 0.002639,
+    'mean loss: ': 0.241476, 'mean s_rtt: ': 23.611465, 'state: ': Forecast, time: 0.0-1.0},
+  {'bytes sent: ': 10042745, 'mean cwnd: ': 444962.0, 'mean jitter: ': 0.373673, 'mean loss2: ': 0.002639,
+    'mean loss: ': 0.241476, 'mean s_rtt: ': 23.611465, 'state: ': SLA is OK, time: global}]

@@ -1,0 +1,1 @@
+channel_rtt:200 channel_loss:0.1 channel_bw:240 channel_jitt:1 channel_congestion_control:bbrfrcstold cwnd:2523495.343249372 1038<function curr_time_to_path at 0x7f3f06611090>

@@ -27,7 +27,8 @@ def load_and_predict(path_to_models, rtt, loss, bw):
     # model = pickle.load(open(Path(path_to_models) / "poly_reg_lasso_degree_deg7.txt", 'rb'))
     # model = pickle.load(open(Path(path_to_models) / "poly_reg_ridge_degree_deg7.txt", 'rb'))
     model = CatBoostRegressor()
-    model.load_model(Path(path_to_models) / "catboost.cbm")
+    # model.load_model(Path(path_to_models) / "catboost.cbm") # Coef: * 1.00014
+    model.load_model(Path(path_to_models) / "catboost_extended.cbm") # Coef: * 1
 
     degree = 7
 
@@ -38,7 +39,7 @@ def load_and_predict(path_to_models, rtt, loss, bw):
 
     print(y_pred)
 
-    return y_pred[0] * 1.00014 # Check bias in train notebook perf/congestion_reg.py based on choosen model
+    return y_pred[0] # Check bias in train notebook perf/congestion_reg.py based on choosen model
 
 arg_parser = ArgumentParser(prog='choose_channel',
                             description='')   

@@ -42,13 +42,13 @@ import time
 '''Define pathes and general settings'''
 
 '''Xlsx file to parse data from'''
-xlsx_df_source = "cc_perf_tests/optimal_speed_ML_v2.xlsx"
+xlsx_df_source = "cc_perf_tests/optimal_speed_ML_additional_dataset_v4.xlsx"
 '''Path, where to save ml cross val results'''
 cc_dir = "cc_ml_diploma/"
 '''Filenames with ml results'''
 ml_result_names = ['']
 '''Path to save models'''
-path_to_save_ml_models = Path("../stand_support/models/")
+path_to_save_ml_models = Path("../calculate_cwnd/cwnd_models/")
 sns.set_theme(style="whitegrid")
 
 # %%
@@ -124,9 +124,9 @@ res_list = list()
 '''Print cross val results and save them in 'cc_dir' '''
 def conclude_and_save(res_list, total_time, lib_name="", finalists_numb=10):
     print(f'\nTotal {total_time} taken.')
-    res_list = sorted(res_list, key=lambda x: -x['test_NMAE'])
+    res_list = sorted(res_list, key=lambda x: -x['test_NEP'])
     print(f"\nTop {finalists_numb} models: ", res_list[:10])
-    fname = f'{cc_dir}/ml_cwnd_'+lib_name+'_'+'.'.join('_'.join(time.asctime().split()).split(':'))
+    fname = f'{cc_dir}/ml_cwnd_additional'+lib_name+'_'+'.'.join('_'.join(time.asctime().split()).split(':'))
     with open(fname, 'w') as f:
         json.dump(res_list, f, indent = 6)
     print("\nName: ", fname)
@@ -266,11 +266,12 @@ res_list, total_time = cross_val(X, y, paramGrid, LGBMRegressor_model, 'LightGBM
 # %%
 conclude_and_save(res_list, total_time, lib_name='LightGBM')
 '''Optional: Run   res_list = list()'''
+res_list = list()
 
 # %%
 '''CatBoost'''
 paramGrid = {
-    'num_trees': list(np.random.uniform(2, 100, 30)) + list(np.random.uniform(100, 1000, 10)) + list(np.random.uniform(1000, 3000, 20)),
+    'num_trees': [int(i) for i in list(np.random.uniform(2, 100, 30)) + list(np.random.uniform(100, 1000, 10)) + list(np.random.uniform(1000, 3000, 20))],
     'depth': [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
     'l2_leaf_reg': [0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
     'silent': [True]
@@ -284,6 +285,7 @@ res_list, total_time = cross_val(X, y, paramGrid, CatBoost_model, 'CatBoost', 50
 # %%
 conclude_and_save(res_list, total_time, lib_name='CatBoost')
 '''Optional: Run   res_list = list()'''
+res_list = list()
 
 # %%
 '''XGBoost'''
@@ -309,7 +311,27 @@ def XGBoost_model(ijk):
 res_list, total_time = cross_val(X, y, paramGrid, XGBoost_model, 'XGBoost', 200, timeConstraint=30)
 
 # %%
-conclude_and_save(res_list, total_time, lib_name='XGBoost')
+# conclude_and_save(res_list, total_time, lib_name='XGBoost')
+'''Optional: Run   res_list = list()'''
+res_list = list()
+
+# %%
+'''Sklearn SINGLE Tree'''
+paramGrid = {
+    'max_depth': [11, 12, 13, 14, 15, 16, 17],
+    'max_features': [1.0, 'sqrt'],
+    'min_samples_leaf': [1, 2, 4, 8],
+    'min_samples_split': [2, 5, 10]
+}
+
+def Sklearn_model(ijk):
+    return TransformedTargetRegressor(regressor=tree.DecisionTreeRegressor(**ijk),
+                                      transformer=preprocessing.MinMaxScaler())
+
+res_list, total_time = cross_val(X, y, paramGrid, Sklearn_model, 'Sklearn', 400, timeConstraint=30)
+
+# %%
+conclude_and_save(res_list, total_time, lib_name='Sklearn')
 '''Optional: Run   res_list = list()'''
 res_list = list()
 
@@ -718,8 +740,23 @@ runs_number = 1
 for i in range(runs_number):
     X_cv, X_test, y_cv, y_test = model_selection.train_test_split(X_df, y_df, test_size=0.1, shuffle=True)
 
-    best_model = Lasso(alpha = 20000, selection = 'random', tol = 3*1e-5, max_iter = 160000, warm_start = True, precompute = True) # 0.15397035347669225 -2.078726559288437
-    # best_model = Ridge(alpha = 50, solver='cholesky') # -0.1247498447031332 -1.9871304715218807
+    '''BASE DATASET (v2):
+       Bias                NEP                  '''
+    '''0.15397035347669225 -2.078726559288437   '''
+    # best_model = Lasso(alpha = 20000, selection = 'random', tol = 3*1e-5, max_iter = 160000, warm_start = True, precompute = True)
+    '''-0.1247498447031332 -1.9871304715218807  '''
+    # best_model = Ridge(alpha = 60, solver='cholesky')
+    '''-0.014071293295274196 -0.9160995547150623'''
+    # best_model = CatBoostRegressor(num_trees = 920, depth = 6, l2_leaf_reg = 0, silent = True) # 0.16438020499757508 -0.9867901248660365
+    
+    '''EXTENDED DATASET (v4):
+       Bias                NEP                  '''
+    ''' '''
+    # best_model = Lasso(alpha = 20000, selection = 'random', tol = 3*1e-5, max_iter = 160000, warm_start = True, precompute = True)
+    ''' '''
+    # best_model = Ridge(alpha = 60, solver='cholesky')
+    '''1.0556002510492937 -2.028029020911146'''
+    best_model = CatBoostRegressor(num_trees = 1700, depth = 6, l2_leaf_reg = 0, silent = True) # 0.16438020499757508 -0.9867901248660365
     degree = 7
 
     X_cv_poly = X_poly(X, degree_const=degree)
@@ -735,8 +772,10 @@ print("\n", sum(neps)/len(neps), sum(biases)/len(biases))
 
 # %%
 '''Save best models'''
-pickle.dump(best_model, open(path_to_save_ml_models / "poly_reg_lasso_degree_deg7.txt", 'wb'))
-
+# pickle.dump(best_model, open(path_to_save_ml_models / "poly_reg_ridge_degree_deg7_extended.txt", 'wb'))
+# pickle.dump(best_model, open(path_to_save_ml_models / "poly_reg_lasso_degree_deg7_extended.txt", 'wb'))
+# pickle.dump(best_model, open(path_to_save_ml_models / "catboost_extended.txt", 'wb'))
+best_model.save_model(path_to_save_ml_models / "catboost_extended.cbm")
 
 # %%
 '''Do we want to handle more experiments for new input samples?'''
@@ -804,11 +843,11 @@ for i in range(runs_number):
 
     # y_pred_tmp = manual_train_test(Ridge(), BDP(X), y, BDP(X_test), y_test) # 5.199098635928246 -8.845153115373808
     # _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, y_pred_tmp[0])
-    _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, BDP(X_test), silent=True) # -2.8089529091172727 -6.20016727310029
+    # _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, BDP(X_test), silent=True) # -2.8089529091172727 -6.20016727310029
 
     # y_pred_tmp = manual_train_test(Ridge(), BBR_FORECAST_2022(X), y, BBR_FORECAST_2022(X_test), y_test) # 5.785538055330505 -9.583897965352309
     # _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, y_pred_tmp[0])
-    # _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, BBR_FORECAST_2022(X_test)) # -3.0237179236415557 -5.928357987302471
+    _, cur_nep, cur_bias = manual_invsee_results("Optimal CWND (bytes)", y_test, BBR_FORECAST_2022(X_test)) # -2.550082698357394 -5.928357987302471
 
     biases.append(cur_bias)
     neps.append(cur_nep)

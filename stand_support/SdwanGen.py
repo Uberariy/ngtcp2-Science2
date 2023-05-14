@@ -42,7 +42,7 @@ def runFlow( net: Mininet, flowParams: SdwanFlow, topoParams: TopoParams, bbrPar
     states = ""
     duration = int(flowParams.timeStop - flowParams.timeStart)
     if agentParams.cong_control == "bbrfrcst":
-        cc_params += f"--bbrfrcst-params={p_rtt},{p_loss},{sla_r_speed*1024//8} --cong_wind_bbrfrcst={cong_wind_bbrfrcst}"
+        cc_params += f"--bbrfrcst-params={p_rtt},{p_loss},{p_bw*1024*1024//8},{sla_r_speed*1024//8} --cong_wind_bbrfrcst={cong_wind_bbrfrcst}"
         states += "--states"
     # FOR DIPLOMA:
     # os.environ["LD_LIBRARY_PATH"] = "/home/admsys/inopsy/ngtcp2-Science/lib/.libs/:/home/admsys/inopsy/nghttp3/lib/.libs/:/home/admsys/inopsy/openssl/:/home/admsys/inopsy/ngtcp2-Science/crypto/openssl/.libs/"
